@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { FailEmbed, SuccessEmbed } from "../../structures/Embed.mjs";
-import { checkConnection } from "../../utils/functions.mjs";
+import { checkConnection, checkQueue } from "../../utils/functions.mjs";
 
 /** @type {import("../../utils/types.mjs").Command} */
 export default {
@@ -9,16 +9,9 @@ export default {
     .setDescription("Stop the player from playing music."),
   run: async ({ client, interaction }) => {
     if (!checkConnection(interaction)) return;
+    if (!checkQueue(client, interaction)) return;
 
     const queue = client.player.getQueue(interaction.guild.id);
-    if (!queue || !queue.playing)
-      return interaction.reply({
-        embeds: [
-          new FailEmbed().setDescription(
-            "No music is being played in this channel"
-          ),
-        ],
-      });
 
     queue.destroy();
 
