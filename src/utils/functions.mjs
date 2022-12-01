@@ -11,7 +11,7 @@ export async function importFile(path) {
 
 /**
  *
- * @param {import("discord.js").ChatInputCommandInteraction} interaction
+ * @param {import("discord.js").Interaction} interaction
  * @returns {Promise<import("discord.js").InteractionResponse> | true}
  */
 export function checkConnection(interaction) {
@@ -57,7 +57,7 @@ export function checkConnection(interaction) {
 /**
  *
  * @param {import("../structures/BotClient.mjs").BotClient} client
- * @param {import("discord.js").ChatInputCommandInteraction} interaction
+ * @param {import("discord.js").Interaction} interaction
  * @returns {Promise<import("discord.js").InteractionResponse> | true}
  */
 export function checkQueue(client, interaction) {

@@ -16,9 +16,7 @@ export default {
     queue.destroy();
 
     interaction.reply({
-      embeds: [
-        new SuccessEmbed().setDescription("Successfully stopped the player!"),
-      ],
+      embeds: [new SuccessEmbed().setDescription("Stopped the queue!")],
       ephemeral: true,
     });
   },
