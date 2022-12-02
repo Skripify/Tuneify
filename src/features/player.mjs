@@ -18,6 +18,14 @@ let songEditInterval = null;
 /** @type {import("../utils/types.mjs").Feature} */
 export default (client) => {
   client.player
+    .on("initQueue", (queue) => {
+      client.db.ensure(queue.id, {
+        defaultVolume: 50,
+      });
+
+      const data = client.db.get(queue.id);
+      queue.setVolume(data.defaultVolume);
+    })
     .on("playSong", async (queue, track) => {
       if (!client.guilds.cache.get(queue.id).members.me.voice.deaf)
         client.guilds.cache.get(queue.id).members.me.voice.setDeaf(true);
