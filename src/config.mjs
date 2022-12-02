@@ -21,6 +21,8 @@ export const emotes = {
       default: "<:loop:994442351953055844>",
       single: "<:loopsingle:994442353655939153>",
     },
+    forward: "<:forward:994442350032081027>",
+    rewind: "<:rewind:994442355442720888>",
   },
 };
 

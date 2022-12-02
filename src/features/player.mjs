@@ -214,6 +214,55 @@ export default (client) => {
               });
             }
             break;
+          case "forward":
+            {
+              let seektime = newQueue.currentTime + 10;
+              if (seektime >= newQueue.songs[0].duration)
+                seektime = newQueue.songs[0].duration - 1;
+              await newQueue.seek(Number(seektime));
+              collector.resetTimer({
+                time:
+                  (newQueue.songs[0].duration - newQueue.currentTime) * 1000,
+              });
+
+              currentSongMsg.edit(
+                recieveQueueData(newQueue, newQueue.songs[0])
+              );
+              i.reply({
+                embeds: [
+                  new SuccessEmbed().setDescription(
+                    `Skipped to \`${newQueue.formattedCurrentTime}\`!`
+                  ),
+                ],
+                ephemeral: true,
+              });
+            }
+            break;
+          case "rewind":
+            {
+              let seektime = newQueue.currentTime - 10;
+              if (seektime < 0) seektime = 0;
+              if (seektime >= newQueue.songs[0].duration - newQueue.currentTime)
+                seektime = 0;
+              await newQueue.seek(Number(seektime));
+              collector.resetTimer({
+                time:
+                  (newQueue.songs[0].duration - newQueue.currentTime) * 1000,
+              });
+
+              currentSongMsg.edit(
+                recieveQueueData(newQueue, newQueue.songs[0])
+              );
+              i.reply({
+                embeds: [
+                  new SuccessEmbed().setDescription(
+                    `Rewinded to \`${newQueue.formattedCurrentTime}\`!`
+                  ),
+                ],
+                ephemeral: true,
+              });
+            }
+            break;
         }
       });
     })
@@ -305,7 +354,19 @@ export default (client) => {
           queue.repeatMode === RepeatMode.DISABLED
             ? ButtonStyle.Secondary
             : ButtonStyle.Success
-        )
+        ),
+      new ButtonBuilder()
+        .setCustomId("forward")
+        .setEmoji(emotes.player.forward)
+        .setLabel("+10s")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(Math.floor(track.duration - queue.currentTime) <= 10),
+      new ButtonBuilder()
+        .setCustomId("rewind")
+        .setEmoji(emotes.player.rewind)
+        .setLabel("-10s")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(Math.floor(queue.currentTime) < 10)
     );
 
     return {
