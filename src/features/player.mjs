@@ -12,137 +12,165 @@ let songEditInterval = null;
 
 /** @type {import("../utils/types.mjs").Feature} */
 export default (client) => {
-  client.player.on("trackStart", async (queue, track) => {
-    if (!queue.guild.members.me.voice.deaf)
-      queue.guild.members.me.voice.setDeaf(true);
+  client.player
+    .on("playSong", async (queue, track) => {
+      if (!client.guilds.cache.get(queue.id).members.me.voice.deaf)
+        client.guilds.cache.get(queue.id).members.me.voice.setDeaf(true);
 
-    /** @type {import("discord.js").Message} */
-    const currentSongMsg = await queue.metadata.channel
-      .send(recieveQueueData(queue, track))
-      .then((msg) => {
-        PlayerMap.set("currentMsg", msg.id);
-        return msg;
+      const currentSongMsg = await queue.textChannel
+        .send(recieveQueueData(queue, track))
+        .then((msg) => {
+          PlayerMap.set("currentMsg", msg.id);
+          return msg;
+        });
+      const collector = currentSongMsg.createMessageComponentCollector({
+        time: track.durationMS ? track.durationMS * 1000 : 600000,
+        componentType: ComponentType.Button,
       });
-    const collector = currentSongMsg.createMessageComponentCollector({
-      time: track.durationMS ? track.durationMS * 1000 : 600000,
-      componentType: ComponentType.Button,
-    });
 
-    let edited = false;
+      let edited = false;
 
-    try {
-      clearInterval(songEditInterval);
-    } catch {}
-
-    songEditInterval = setInterval(async () => {
-      if (edited) return;
       try {
-        const newQueue = client.player.getQueue(queue.guild.id);
-        await currentSongMsg.edit(recieveQueueData(newQueue, newQueue.current));
-      } catch (e) {
         clearInterval(songEditInterval);
-      }
-    }, 10000);
+      } catch {}
 
-    collector.on("collect", async (i) => {
-      if (!checkConnection(i)) return;
-      if (!checkQueue(client, i)) return;
+      songEditInterval = setInterval(async () => {
+        if (edited) return;
+        try {
+          const newQueue = client.player.getQueue(queue.id);
+          await currentSongMsg.edit(
+            recieveQueueData(newQueue, newQueue.songs[0])
+          );
+        } catch (e) {
+          clearInterval(songEditInterval);
+        }
+      }, 10000);
 
-      const newQueue = client.player.getQueue(queue.guild.id);
+      collector.on("collect", async (i) => {
+        if (!checkConnection(i)) return;
+        if (!checkQueue(client, i)) return;
 
-      edited = true;
-      setTimeout(() => {
-        edited = false;
-      }, 7000);
+        const newQueue = client.player.getQueue(queue.id);
 
-      switch (i.customId) {
-        case "previous":
-          {
-            queue.back();
+        edited = true;
+        setTimeout(() => {
+          edited = false;
+        }, 7000);
 
-            currentSongMsg.edit({
-              embeds: [
-                new Embed().setDescription(
-                  `This song was skipped by ${i.user.tag}.`
-                ),
-              ],
-              components: [],
-            });
-            i.reply({
-              embeds: [
-                new SuccessEmbed().setDescription("Skipped to previous song!"),
-              ],
-              ephemeral: true,
-            });
-          }
-          break;
-        case "playpause":
-          {
-            if (queue.connection.paused) {
-              queue.setPaused(false);
+        switch (i.customId) {
+          case "previous":
+            {
+              await queue.previous();
 
-              currentSongMsg.edit(recieveQueueData(newQueue, newQueue.current));
-              i.reply({
-                embeds: [new SuccessEmbed().setDescription("Resumed!")],
-                ephemeral: true,
+              currentSongMsg.edit({
+                embeds: [
+                  new Embed().setDescription(
+                    `This song was skipped by ${i.user.tag}.`
+                  ),
+                ],
+                components: [],
               });
-            } else {
-              queue.setPaused(true);
-
-              currentSongMsg.edit(recieveQueueData(newQueue, newQueue.current));
+              PlayerMap.delete("currentMsg");
               i.reply({
-                embeds: [new SuccessEmbed().setDescription("Paused!")],
+                embeds: [
+                  new SuccessEmbed().setDescription(
+                    "Skipped to previous song!"
+                  ),
+                ],
                 ephemeral: true,
               });
             }
-          }
-          break;
-        case "next":
-          {
-            queue.skip();
+            break;
+          case "playpause":
+            {
+              if (queue.paused) {
+                queue.resume();
 
-            currentSongMsg.edit({
-              embeds: [
-                new Embed().setDescription(
-                  `This song was skipped by ${i.user.tag}.`
-                ),
-              ],
-              components: [],
-            });
-            i.reply({
-              embeds: [
-                new SuccessEmbed().setDescription("Skipped the current song!"),
-              ],
-              ephemeral: true,
-            });
-          }
-          break;
-        case "stop":
-          {
-            queue.stop();
+                currentSongMsg.edit(
+                  recieveQueueData(newQueue, newQueue.songs[0])
+                );
+                i.reply({
+                  embeds: [new SuccessEmbed().setDescription("Resumed!")],
+                  ephemeral: true,
+                });
+              } else {
+                queue.pause();
 
-            currentSongMsg.edit({
-              embeds: [
-                new Embed().setDescription(
-                  `The queue was stopped by ${i.user.tag}.`
-                ),
-              ],
-              components: [],
-            });
-            i.reply({
-              embeds: [new SuccessEmbed().setDescription("Stopped the queue!")],
-              ephemeral: true,
-            });
-          }
-          break;
-      }
+                currentSongMsg.edit(
+                  recieveQueueData(newQueue, newQueue.songs[0])
+                );
+                i.reply({
+                  embeds: [new SuccessEmbed().setDescription("Paused!")],
+                  ephemeral: true,
+                });
+              }
+            }
+            break;
+          case "next":
+            {
+              queue.skip();
+
+              currentSongMsg.edit({
+                embeds: [
+                  new Embed().setDescription(
+                    `This song was skipped by ${i.user.tag}.`
+                  ),
+                ],
+                components: [],
+              });
+              PlayerMap.delete("currentMsg");
+              i.reply({
+                embeds: [
+                  new SuccessEmbed().setDescription(
+                    "Skipped the current song!"
+                  ),
+                ],
+                ephemeral: true,
+              });
+            }
+            break;
+          case "stop":
+            {
+              queue.stop();
+
+              currentSongMsg.edit({
+                embeds: [
+                  new Embed().setDescription(
+                    `The queue was stopped by ${i.user.tag}.`
+                  ),
+                ],
+                components: [],
+              });
+              PlayerMap.delete("currentMsg");
+              i.reply({
+                embeds: [
+                  new SuccessEmbed().setDescription("Stopped the queue!"),
+                ],
+                ephemeral: true,
+              });
+            }
+            break;
+        }
+      });
+    })
+    .on("finishSong", (queue) => {
+      if (!PlayerMap.has("currentMsg")) return;
+
+      queue.textChannel.messages
+        .fetch(PlayerMap.get("currentMsg"))
+        .then((currentSongMsg) => {
+          currentSongMsg.edit({
+            embeds: [new Embed().setDescription("This song has ended.")],
+            components: [],
+          });
+          PlayerMap.delete(`currentmsg`);
+        });
     });
-  });
 
   /**
    *
-   * @param {import('discord-player').Queue} queue
-   * @param {import('discord-player').Track} track
+   * @param {import('distube').Queue} queue
+   * @param {import('distube').Song} track
    * @returns {import("discord.js").MessageReplyOptions}
    */
   function recieveQueueData(queue, track) {
@@ -157,23 +185,21 @@ export default (client) => {
 
     const embed = new Embed()
       .setAuthor({
-        name: track.title,
+        name: track.name,
         iconURL:
           "https://images-ext-1.discordapp.net/external/DkPCBVBHBDJC8xHHCF2G7-rJXnTwj_qs78udThL8Cy0/%3Fv%3D1/https/cdn.discordapp.com/emojis/859459305152708630.gif",
         url: track.url,
       })
-      .setThumbnail(track.thumbnail)
+      .setThumbnail(`https://img.youtube.com/vi/${track.id}/mqdefault.jpg`)
       .addFields(
         {
           name: "💡 Requested by:",
-          value: `>>> ${track.requestedBy}`,
+          value: `>>> ${track.member}`,
           inline: true,
         },
         {
           name: "⏱ Duration:",
-          value: `>>> \`${queue.getPlayerTimestamp().current}\`/\`${
-            track.duration
-          }\``,
+          value: `>>> \`${queue.formattedCurrentTime}\`/\`${track.formattedDuration}\``,
           inline: true,
         }
       );
@@ -183,20 +209,16 @@ export default (client) => {
         .setCustomId("previous")
         .setEmoji(emotes.player.previous)
         .setStyle(ButtonStyle.Secondary)
-        .setDisabled(queue.previousTracks.length > 0),
+        .setDisabled(!queue.previousSongs || queue.previousSongs.length === 0),
       new ButtonBuilder()
         .setCustomId("playpause")
-        .setEmoji(
-          queue.connection.paused ? emotes.player.play : emotes.player.pause
-        )
-        .setStyle(
-          queue.connection.paused ? ButtonStyle.Success : ButtonStyle.Secondary
-        ),
+        .setEmoji(queue.playing ? emotes.player.pause : emotes.player.play)
+        .setStyle(queue.playing ? ButtonStyle.Secondary : ButtonStyle.Success),
       new ButtonBuilder()
         .setCustomId("next")
         .setEmoji(emotes.player.next)
         .setStyle(ButtonStyle.Secondary)
-        .setDisabled(queue.tracks.length >= 0),
+        .setDisabled(queue.songs.length <= 1),
       new ButtonBuilder()
         .setCustomId("stop")
         .setEmoji(emotes.player.stop)
