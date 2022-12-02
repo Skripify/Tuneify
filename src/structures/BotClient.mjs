@@ -3,7 +3,10 @@ import fs from "fs";
 import Enmap from "enmap";
 import { importFile } from "../utils/functions.mjs";
 import { guildId } from "../config.mjs";
-import { Player } from "discord-player";
+import { DisTube } from "distube";
+import { SoundCloudPlugin } from "@distube/soundcloud";
+import { SpotifyPlugin } from "@distube/spotify";
+import { YtDlpPlugin } from "@distube/yt-dlp";
 
 export class BotClient extends Client {
   /** @type {import("discord.js").Collection<string, import("../utils/types.mjs").Command>} */
@@ -20,7 +23,20 @@ export class BotClient extends Client {
     prefix: process.env.PREFIX,
   };
 
-  player = new Player(this);
+  player = new DisTube(this, {
+    leaveOnEmpty: true,
+    leaveOnFinish: false,
+    leaveOnStop: true,
+    savePreviousSongs: true,
+    searchSongs: 0,
+    plugins: [
+      new SpotifyPlugin({
+        emitEventsAfterFetching: true,
+      }),
+      new SoundCloudPlugin(),
+      new YtDlpPlugin(),
+    ],
+  });
 
   /** @param {import('discord.js').ClientOptions} options */
   constructor(options = {}) {
