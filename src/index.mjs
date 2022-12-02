@@ -2,8 +2,10 @@ import "dotenv/config";
 
 import { ActivityType } from "discord.js";
 import { BotClient } from "./structures/BotClient.mjs";
+import { activity } from "./config.mjs";
 
 const client = new BotClient({
+  shards: "auto",
   allowedMentions: {
     parse: [],
     users: [],
@@ -11,12 +13,7 @@ const client = new BotClient({
     repliedUser: false,
   },
   presence: {
-    activities: [
-      {
-        name: "your jams",
-        type: ActivityType.Listening,
-      },
-    ],
+    activities: [activity],
   },
 });
 

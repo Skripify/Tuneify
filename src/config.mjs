@@ -1,3 +1,5 @@
+import { ActivityType } from "discord.js";
+
 export const colors = {
   main: "#cc80ff",
   success: "#00ff00",
@@ -28,3 +30,9 @@ export const emotes = {
 
 export const guildId = "977485367294959627";
 export const postStats = false;
+
+/** @type {import("discord.js").ActivityOptions} */
+export const activity = {
+  name: "music",
+  type: ActivityType.Listening,
+};
