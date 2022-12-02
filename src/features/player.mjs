@@ -150,6 +150,37 @@ export default (client) => {
               });
             }
             break;
+          case "shuffle":
+            {
+              if (client.maps.has(`beforeshuffle-${newQueue.id}`)) {
+                newQueue.songs = [
+                  newQueue.songs[0],
+                  ...client.maps.get(`beforeshuffle-${newQueue.id}`),
+                ];
+                client.maps.delete(`beforeshuffle-${newQueue.id}`);
+
+                i.reply({
+                  embeds: [
+                    new SuccessEmbed().setDescription("Unshuffled the queue!"),
+                  ],
+                  ephemeral: true,
+                });
+              } else {
+                client.maps.set(
+                  `beforeshuffle-${newQueue.id}`,
+                  newQueue.songs.slice(1)
+                );
+                await newQueue.shuffle();
+
+                i.reply({
+                  embeds: [
+                    new SuccessEmbed().setDescription("Shuffled the queue!"),
+                  ],
+                  ephemeral: true,
+                });
+              }
+            }
+            break;
         }
       });
     })
@@ -222,7 +253,12 @@ export default (client) => {
       new ButtonBuilder()
         .setCustomId("stop")
         .setEmoji(emotes.player.stop)
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId("shuffle")
+        .setEmoji(emotes.player.shuffle)
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(queue.songs.length <= 1)
     );
 
     return {

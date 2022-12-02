@@ -16,6 +16,7 @@ export class BotClient extends Client {
     name: "db",
     dataDir: "./db",
   });
+  maps = new Map()
 
   /** @type {import("../utils/types.mjs").EnvConfig} */
   env = {
