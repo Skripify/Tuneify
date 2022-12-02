@@ -33,7 +33,7 @@ export default (client) => {
       const currentSongMsg = await queue.textChannel
         .send(recieveQueueData(queue, track))
         .then((msg) => {
-          PlayerMap.set("currentMsg", msg.id);
+          client.db.set(queue.id, msg.id, "currentMsg");
           return msg;
         });
       const collector = currentSongMsg.createMessageComponentCollector({
@@ -83,7 +83,7 @@ export default (client) => {
                 ],
                 components: [],
               });
-              PlayerMap.delete("currentMsg");
+              client.db.delete(queue.id, "currentMsg");
               i.reply({
                 embeds: [
                   new SuccessEmbed().setDescription(
@@ -131,7 +131,7 @@ export default (client) => {
                 ],
                 components: [],
               });
-              PlayerMap.delete("currentMsg");
+              client.db.delete(queue.id, "currentMsg");
               i.reply({
                 embeds: [
                   new SuccessEmbed().setDescription(
@@ -154,7 +154,7 @@ export default (client) => {
                 ],
                 components: [],
               });
-              PlayerMap.delete("currentMsg");
+              client.db.delete(queue.id, "currentMsg");
               i.reply({
                 embeds: [
                   new SuccessEmbed().setDescription("Stopped the queue!"),
@@ -267,16 +267,17 @@ export default (client) => {
       });
     })
     .on("finishSong", (queue) => {
-      if (!PlayerMap.has("currentMsg")) return;
+      if (!client.db.has(queue.id) || !client.db.has(queue.id, "currentMsg"))
+        return;
 
       queue.textChannel.messages
-        .fetch(PlayerMap.get("currentMsg"))
+        .fetch(client.db.get(queue.id, "currentMsg"))
         .then((currentSongMsg) => {
           currentSongMsg.edit({
             embeds: [new Embed().setDescription("This song has ended.")],
             components: [],
           });
-          PlayerMap.delete(`currentmsg`);
+          client.db.delete(queue.id, "currentMsg");
         });
     });
 
