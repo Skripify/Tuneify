@@ -1,4 +1,5 @@
 import { FailEmbed } from "../structures/Embed.mjs";
+import { RepeatMode } from "distube";
 
 /**
  *
@@ -76,4 +77,23 @@ export function checkQueue(client, interaction) {
     );
 
   return true;
+}
+
+/**
+ *
+ * @param {import("distube").RepeatMode} repeatMode
+ * @returns {string | null}
+ */
+export function formatRepeatMode(repeatMode) {
+  switch (repeatMode) {
+    case RepeatMode.QUEUE: {
+      return "Queue";
+    }
+    case RepeatMode.SONG: {
+      return "Song";
+    }
+    default: {
+      return null;
+    }
+  }
 }

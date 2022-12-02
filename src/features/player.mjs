@@ -6,7 +6,12 @@ import {
 } from "discord.js";
 import { emotes } from "../config.mjs";
 import { Embed, FailEmbed, SuccessEmbed } from "../structures/Embed.mjs";
-import { checkConnection, checkQueue } from "../utils/functions.mjs";
+import {
+  checkConnection,
+  checkQueue,
+  formatRepeatMode,
+} from "../utils/functions.mjs";
+import { RepeatMode } from "distube";
 const PlayerMap = new Map();
 let songEditInterval = null;
 
@@ -181,6 +186,26 @@ export default (client) => {
               }
             }
             break;
+          case "loop":
+            {
+              const repeat = newQueue.setRepeatMode();
+              const newRepeat = formatRepeatMode(repeat);
+
+              currentSongMsg.edit(
+                recieveQueueData(newQueue, newQueue.songs[0])
+              );
+              i.reply({
+                embeds: [
+                  new SuccessEmbed().setDescription(
+                    newRepeat?.length
+                      ? `Set loop mode to: ${newRepeat}!`
+                      : "Disabled loop!"
+                  ),
+                ],
+                ephemeral: true,
+              });
+            }
+            break;
         }
       });
     })
@@ -260,10 +285,24 @@ export default (client) => {
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(queue.songs.length <= 1)
     );
+    const row2 = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId("loop")
+        .setEmoji(
+          queue.repeatMode === RepeatMode.SONG
+            ? emotes.player.loop.single
+            : emotes.player.loop.default
+        )
+        .setStyle(
+          queue.repeatMode === RepeatMode.DISABLED
+            ? ButtonStyle.Secondary
+            : ButtonStyle.Success
+        )
+    );
 
     return {
       embeds: [embed],
-      components: [row],
+      components: [row, row2],
     };
   }
 };

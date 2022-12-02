@@ -17,6 +17,10 @@ export const emotes = {
     next: "<:next_song:994440946030739486>",
     stop: "<:stop:994442358705893378>",
     shuffle: "<:shuffle:994442357019779132>",
+    loop: {
+      default: "<:loop:994442351953055844>",
+      single: "<:loopsingle:994442353655939153>",
+    },
   },
 };
 
