@@ -1,3 +1,3 @@
 # Tuneify
 
-Your local Discord music bot.
+Everyone's favorite Discord music bot.
