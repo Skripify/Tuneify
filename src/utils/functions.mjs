@@ -11,6 +11,15 @@ export async function importFile(path) {
 }
 
 /**
+ * Capitalizes the first letter of a string.
+ * @param {string} str
+ * @returns {string}
+ */
+export function capitalize(str) {
+  return str[0].toUpperCase() + str.toLowerCase().slice(1);
+}
+
+/**
  *
  * @param {import("discord.js").Interaction} interaction
  * @returns {boolean}
