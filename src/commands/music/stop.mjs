@@ -13,7 +13,7 @@ export default {
 
     const queue = client.player.getQueue(interaction.guild.id);
 
-    queue.destroy();
+    await queue.stop();
 
     interaction.reply({
       embeds: [new SuccessEmbed().setDescription("Stopped the queue!")],

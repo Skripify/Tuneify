@@ -12,7 +12,7 @@ export async function importFile(path) {
 /**
  *
  * @param {import("discord.js").Interaction} interaction
- * @returns {Promise<import("discord.js").InteractionResponse> | true}
+ * @returns {boolean}
  */
 export function checkConnection(interaction) {
   const { channel } = interaction.member.voice;
@@ -58,11 +58,11 @@ export function checkConnection(interaction) {
  *
  * @param {import("../structures/BotClient.mjs").BotClient} client
  * @param {import("discord.js").Interaction} interaction
- * @returns {Promise<import("discord.js").InteractionResponse> | true}
+ * @returns {boolean}
  */
 export function checkQueue(client, interaction) {
   const queue = client.player.getQueue(interaction.guild.id);
-  if (!queue || !queue.playing)
+  if (!queue || !queue.songs || queue.songs.length === 0)
     return (
       interaction.reply({
         embeds: [
