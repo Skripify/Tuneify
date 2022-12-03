@@ -267,6 +267,8 @@ export default (client) => {
       });
     })
     .on("finishSong", (queue) => {
+      if (songEditInterval !== null) clearInterval(songEditInterval);
+
       if (!client.db.has(queue.id) || !client.db.has(queue.id, "currentMsg"))
         return;
 
