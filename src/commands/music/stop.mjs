@@ -8,7 +8,7 @@ export default {
     .setName("stop")
     .setDescription("Stop the player from playing music."),
   run: async ({ client, interaction }) => {
-    if (!checkConnection(interaction)) return;
+    if (!checkConnection(client, interaction)) return;
     if (!checkQueue(client, interaction)) return;
 
     const queue = client.player.getQueue(interaction.guild.id);

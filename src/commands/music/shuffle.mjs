@@ -8,7 +8,7 @@ export default {
     .setName("shuffle")
     .setDescription("Shuffles the queue."),
   run: async ({ client, interaction }) => {
-    if (!checkConnection(interaction)) return;
+    if (!checkConnection(client, interaction)) return;
     if (!checkQueue(client, interaction)) return;
     if (client.maps.has(`beforeshuffle-${interaction.guild.id}`))
       return interaction.reply({

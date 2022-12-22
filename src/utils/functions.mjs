@@ -20,11 +20,11 @@ export function capitalize(str) {
 }
 
 /**
- *
- * @param {import("discord.js").Interaction} interaction
+ * @param {import("../structures/BotClient.mjs").BotClient} client
+ * @param {import("discord.js").Interaction<"cached">} interaction
  * @returns {boolean}
  */
-export function checkConnection(interaction) {
+export function checkConnection(client, interaction) {
   const { channel } = interaction.member.voice;
   const { me } = interaction.guild.members;
 
@@ -56,6 +56,20 @@ export function checkConnection(interaction) {
     return (
       interaction.reply({
         embeds: [new FailEmbed().setDescription("Your voice channel is full.")],
+        ephemeral: true,
+      }),
+      false
+    );
+
+  const vcs = client.db.get(interaction.guild.id, "vcs");
+  if (vcs.length && !vcs.includes(channel.id))
+    return (
+      interaction.reply({
+        embeds: [
+          new FailEmbed().setDescription(
+            "Your voice channel is not whitelisted."
+          ),
+        ],
         ephemeral: true,
       }),
       false

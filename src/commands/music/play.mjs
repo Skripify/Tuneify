@@ -16,7 +16,7 @@ export default {
         .setRequired(true)
     ),
   run: async ({ client, interaction }) => {
-    if (!checkConnection(interaction)) return;
+    if (!checkConnection(client, interaction)) return;
 
     const query = interaction.options.getString("query");
 
