@@ -21,7 +21,7 @@ export function capitalize(str) {
 
 /**
  * @param {import("../structures/BotClient.mjs").BotClient} client
- * @param {import("discord.js").Interaction<"cached">} interaction
+ * @param {import("discord.js").Interaction} interaction
  * @returns {boolean}
  */
 export function checkConnection(client, interaction) {
@@ -60,6 +60,10 @@ export function checkConnection(client, interaction) {
       }),
       false
     );
+
+  client.db.ensure(interaction.guild.id, {
+    vcs: [],
+  });
 
   const vcs = client.db.get(interaction.guild.id, "vcs");
   if (vcs.length && !vcs.includes(channel.id))

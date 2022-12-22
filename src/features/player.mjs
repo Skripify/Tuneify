@@ -60,7 +60,7 @@ export default (client) => {
       }, 10000);
 
       collector.on("collect", async (i) => {
-        if (!checkConnection(i)) return;
+        if (!checkConnection(client, i)) return;
         if (!checkQueue(client, i)) return;
 
         const newQueue = client.player.getQueue(queue.id);
