@@ -16,7 +16,7 @@ export class BotClient extends Client {
     name: "db",
     dataDir: "./db",
   });
-  maps = new Map()
+  maps = new Map();
 
   /** @type {import("../utils/types.mjs").EnvConfig} */
   env = {
@@ -37,6 +37,13 @@ export class BotClient extends Client {
       new SoundCloudPlugin(),
       new YtDlpPlugin(),
     ],
+    ytdlOptions: {
+      highWaterMark: 1024 * 1024 * 64,
+      quality: "highestaudio",
+      format: "audioonly",
+      liveBuffer: 60000,
+      dlChunkSize: 1024 * 1024 * 4,
+    },
   });
 
   /** @param {import('discord.js').ClientOptions} options */
