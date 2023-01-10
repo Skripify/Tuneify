@@ -21,7 +21,7 @@ export function capitalize(str) {
 
 /**
  * @param {import("../structures/BotClient.mjs").BotClient} client
- * @param {import("discord.js").Interaction} interaction
+ * @param {import("discord.js").Interaction<"cached">} interaction
  * @returns {boolean}
  */
 export function checkConnection(client, interaction) {
@@ -56,6 +56,28 @@ export function checkConnection(client, interaction) {
     return (
       interaction.reply({
         embeds: [new FailEmbed().setDescription("Your voice channel is full.")],
+        ephemeral: true,
+      }),
+      false
+    );
+
+  if (!channel.permissionsFor(me).has("Connect"))
+    return (
+      interaction.reply({
+        embeds: [
+          new FailEmbed().setDescription("I can't join your voice channel."),
+        ],
+        ephemeral: true,
+      }),
+      false
+    );
+
+  if (!channel.permissionsFor(me).has("Speak"))
+    return (
+      interaction.reply({
+        embeds: [
+          new FailEmbed().setDescription("I can't speak your voice channel."),
+        ],
         ephemeral: true,
       }),
       false
