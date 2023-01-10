@@ -44,7 +44,7 @@ export default {
         new SuccessEmbed().addFields({
           name:
             queue?.songs?.length > 0
-              ? `👍 Queued at #${queue?.songs?.length + 1}`
+              ? "👍 Added to the queue"
               : "🎶 Now playing",
           value: `\`\`\`${query}\`\`\``,
         }),
