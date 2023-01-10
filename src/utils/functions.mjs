@@ -124,3 +124,22 @@ export function formatRepeatMode(repeatMode) {
     }
   }
 }
+
+/**
+ * @param {number} duration
+ * @param {number} position
+ */
+export function createBar(duration, position) {
+  try {
+    const full = "▰";
+    const empty = "▱";
+    const size = "▰▰▰▰▰▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱▱".length;
+    const percent =
+      duration == 0 ? null : Math.floor((position / duration) * 100);
+    const fullBars = Math.round(size * (percent / 100));
+    const emptyBars = size - fullBars;
+    return `**${full.repeat(fullBars)}${empty.repeat(emptyBars)}**`;
+  } catch (e) {
+    console.error(e);
+  }
+}
