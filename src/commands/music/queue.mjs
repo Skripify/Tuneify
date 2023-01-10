@@ -19,7 +19,7 @@ export default {
     const queue = client.player.getQueue(interaction.guild.id);
     let embeds = [];
     let k = 10;
-    let theSongs = queue.songs;
+    let theSongs = queue.songs.slice(1, queue.songs.length);
     for (let i = 0; i < theSongs.length; i += 10) {
       let qus = theSongs;
       const current = qus.slice(i, k);
@@ -41,11 +41,11 @@ export default {
         });
       if (i < 10) {
         embed.setDescription(
-          `**Current song:**\n> [\`${theSongs[0].name}\`](${theSongs[0].url})\n\n${info}`
+          `**Current song:**\n> [\`${queue.songs[0].name}\`](${queue.songs[0].url}) - \`${queue.songs[0].formattedDuration}\`\n\n${info}`
         );
       }
       embeds.push(embed);
-      k += 10; //Raise k to 10
+      k += 10;
     }
 
     const getRow = (cur) => {
