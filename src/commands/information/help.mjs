@@ -23,7 +23,7 @@ export default {
 
           return `\`${file.data.toJSON().name}\``;
         })
-      ).then((x) => x.filter(Boolean).sort((a, b) => a.localeCompare(b)));
+      ).then((x) => x.filter((x) => x).sort((a, b) => a.localeCompare(b)));
 
       if (!cmds) return;
 
